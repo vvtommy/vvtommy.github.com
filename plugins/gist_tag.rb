@@ -37,10 +37,12 @@ module Jekyll
 
     def html_output_for(script_url, code)
       code = CGI.escapeHTML code
-      <<-HTML
+      html=<<-HTML
 <div><script src='#{script_url}'></script>
 <noscript><pre><code>#{code}</code></pre></noscript></div>
       HTML
+
+      html.force_encoding('utf-8')
     end
 
     def script_url_for(gist_id, filename)
