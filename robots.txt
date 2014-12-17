@@ -1,0 +1,4 @@
+User-agent: *
+Disallow: 
+
+Sitemap: http://vvtommy.com/sitemap.xml 

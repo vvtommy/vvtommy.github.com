@@ -1,0 +1,195 @@
+
+<!DOCTYPE HTML>
+<html>
+<head>
+	<meta charset="utf-8">
+	<title>修正Sublime的CoffeeScript插件 0.5.3下的高亮Bug - /home/vvtommy</title>
+	<meta name="author" content="vvtommy">
+
+	
+	<meta name="description" content="今天Sublime Text2的CoffeeScript插件更新后，语法高亮不能正常工作。长时间没有动过vim的我已然残废，在用vim工作了2分钟后表示我已经废了。
+于是只好Google到CoffeeScript插件Github地址，查看issue。果然另一个老兄也报告了这样的bug， &hellip;">
+	
+	<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+
+	<link href="/atom.xml" rel="alternate" title="/home/vvtommy" type="application/atom+xml">
+	<link rel="canonical" href="">
+	<link href="/favicon.png" rel="shortcut icon">
+	<link href="/stylesheets/screen.css" media="screen, projection" rel="stylesheet" type="text/css">
+	<!--[if lt IE 9]><script src="//html5shiv.googlecode.com/svn/trunk/html5.js"></script><![endif]-->
+	<script async="true" src="//ajax.googleapis.com/ajax/libs/jquery/1.7.2/jquery.min.js"></script>
+	
+</head>
+
+
+<body>
+	<header id="header" class="inner"><h1><a href="/">/home/vvtommy</a></h1>
+<nav id="main-nav"><ul class="main">
+	<li><a href="/">Blog</a></li>
+	<li><a href="/blog/archives">Archives</a></li>
+</ul>
+</nav>
+<nav id="mobile-nav">
+	<div class="alignleft menu">
+		<a class="button">Menu</a>
+		<div class="container"><ul class="main">
+	<li><a href="/">Blog</a></li>
+	<li><a href="/blog/archives">Archives</a></li>
+</ul>
+</div>
+	</div>
+	<div class="alignright search">
+		<a class="button"></a>
+		<div class="container">
+			<form action="https://www.google.com/search" method="get">
+				<input type="text" name="q" results="0">
+				<input type="hidden" name="q" value="site:vvtommy.com">
+			</form>
+		</div>
+	</div>
+</nav>
+<nav id="sub-nav" class="alignright">
+	<div class="social">
+		
+		
+		
+		
+    
+		
+		
+		
+		
+		
+		<a class="rss" href="/atom.xml" title="RSS">RSS</a>
+		
+    
+	</div>
+	<form class="search" action="https://www.google.com/search" method="get">
+		<input class="alignright" type="text" name="q" results="0">
+		<input type="hidden" name="q" value="site:vvtommy.com">
+	</form>
+</nav>
+
+</header>
+	
+		
+	
+	<div id="content" class="inner"><article class="post">
+	<h2 class="title">修正Sublime的CoffeeScript插件 0.5.3下的高亮Bug</h2>
+	<div class="entry-content"><p>今天Sublime Text2的CoffeeScript插件更新后，语法高亮不能正常工作。长时间没有动过vim的我已然残废，在用vim工作了2分钟后表示我已经废了。
+于是只好Google到CoffeeScript插件Github地址，查看issue。果然另一个老兄也报告了这样的bug，项目所有者Xavura回应说，之前合并一个Pull Request时没小心测试，说让等几天他会更新，在此之前找到那个有问题的commit，对着diff自己改回来。</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+</pre></td><td class='code'><pre><code class='diff'><span class='line'><span class="gu">@@ -261,7 +261,7 @@</span>
+</span><span class='line'>         &lt;/dict&gt;
+</span><span class='line'>       &lt;/dict&gt;
+</span><span class='line'>       &lt;key&gt;match&lt;/key&gt;
+</span><span class='line'><span class="gd">-      &lt;string&gt;([a-zA-Z\$_](\w|\$|\.)*\s*(?!\::)((:)|(=))(?!(\s*\(.*\))?\s*((=|-)&amp;gt;)))&lt;/string&gt;</span>
+</span><span class='line'><span class="gi">+      &lt;string&gt;([a-zA-Z\$_](\w|\$|\.)*\s*(?!\::)((:)|(=[^=]))(?!(\s*\(.*\))?\s*((=|-)&amp;gt;)))&lt;/string&gt;</span>
+</span><span class='line'>       &lt;key&gt;name&lt;/key&gt;
+</span><span class='line'>       &lt;string&gt;variable.assignment.coffee&lt;/string&gt;
+</span><span class='line'>     &lt;/dict&gt;
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>看comment好像是为了解决这么一个问题:</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class='CoffeeScript'><span class='line'><span class="k">if</span> <span class="p">(</span> <span class="nx">derp</span> <span class="o">==</span> <span class="nx">herp</span> <span class="p">)</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>这时，derp=被语法分析器解释为赋值语句。结果这哥们完全没有看后面的零宽度负预测先行断言，自顾自的加了[^=]，这意味着只要等号后不是<code>=</code>, 那么照样被语法分析器解释为赋值语句… 1秒钟修复。</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+</pre></td><td class='code'><pre><code class='CoffeeScript'><span class='line'><span class="nx">@@</span> <span class="o">-</span><span class="mi">262</span><span class="p">,</span><span class="mi">7</span> <span class="o">+</span><span class="mi">262</span><span class="p">,</span><span class="mi">7</span> <span class="nx">@@</span>
+</span><span class='line'>                <span class="o">&lt;/</span><span class="nx">dict</span><span class="o">&gt;</span>
+</span><span class='line'>            <span class="o">&lt;/</span><span class="nx">dict</span><span class="o">&gt;</span>
+</span><span class='line'>            <span class="o">&lt;</span><span class="nx">key</span><span class="o">&gt;</span><span class="nx">match</span><span class="o">&lt;/</span><span class="nx">key</span><span class="o">&gt;</span>
+</span><span class='line'><span class="o">-</span>           <span class="o">&lt;</span><span class="nx">string</span><span class="o">&gt;</span><span class="p">([</span><span class="nx">a</span><span class="o">-</span><span class="nx">zA</span><span class="o">-</span><span class="nx">Z</span><span class="err">\</span><span class="nx">$_</span><span class="p">](</span><span class="err">\</span><span class="nx">w</span><span class="o">|</span><span class="err">\</span><span class="nx">$</span><span class="o">|</span><span class="err">\</span><span class="p">.)</span><span class="o">*</span><span class="err">\</span><span class="nx">s</span><span class="o">*</span><span class="p">(</span><span class="o">?!</span><span class="err">\</span><span class="o">::</span><span class="p">)((</span><span class="o">:</span><span class="p">)</span><span class="o">|</span><span class="p">(</span><span class="o">=</span><span class="p">))(</span><span class="o">?!</span><span class="p">(</span><span class="err">\</span><span class="nx">s</span><span class="o">*</span><span class="err">\</span><span class="p">(.</span><span class="o">*</span><span class="err">\</span><span class="p">))</span><span class="o">?</span><span class="err">\</span><span class="nx">s</span><span class="o">*</span><span class="p">(</span><span class="o">=|</span><span class="p">(</span><span class="o">=|-</span><span class="p">)</span><span class="o">&amp;</span><span class="nx">gt</span><span class="p">;)))</span><span class="o">&lt;/</span><span class="nx">string</span><span class="o">&gt;</span>
+</span><span class='line'><span class="o">+</span>           <span class="o">&lt;</span><span class="nx">string</span><span class="o">&gt;</span><span class="p">([</span><span class="nx">a</span><span class="o">-</span><span class="nx">zA</span><span class="o">-</span><span class="nx">Z</span><span class="err">\</span><span class="nx">$_</span><span class="p">](</span><span class="err">\</span><span class="nx">w</span><span class="o">|</span><span class="err">\</span><span class="nx">$</span><span class="o">|</span><span class="err">\</span><span class="p">.)</span><span class="o">*</span><span class="err">\</span><span class="nx">s</span><span class="o">*</span><span class="p">(</span><span class="o">?!</span><span class="err">\</span><span class="o">::</span><span class="p">)((</span><span class="o">:</span><span class="p">)</span><span class="o">|</span><span class="p">(</span><span class="o">=</span><span class="p">[</span><span class="o">^=</span><span class="p">]))(</span><span class="o">?!</span><span class="p">(</span><span class="err">\</span><span class="nx">s</span><span class="o">*</span><span class="err">\</span><span class="p">(.</span><span class="o">*</span><span class="err">\</span><span class="p">))</span><span class="o">?</span><span class="err">\</span><span class="nx">s</span><span class="o">*</span><span class="p">((</span><span class="o">=|-</span><span class="p">)</span><span class="o">&amp;</span><span class="nx">gt</span><span class="p">;)))</span><span class="o">&lt;/</span><span class="nx">string</span><span class="o">&gt;</span>
+</span><span class='line'>            <span class="o">&lt;</span><span class="nx">key</span><span class="o">&gt;</span><span class="nx">name</span><span class="o">&lt;/</span><span class="nx">key</span><span class="o">&gt;</span>
+</span><span class='line'>            <span class="o">&lt;</span><span class="nx">string</span><span class="o">&gt;</span><span class="nx">variable</span><span class="p">.</span><span class="nx">assignment</span><span class="p">.</span><span class="nx">coffee</span><span class="o">&lt;/</span><span class="nx">string</span><span class="o">&gt;</span>
+</span><span class='line'>        <span class="o">&lt;/</span><span class="nx">dict</span><span class="o">&gt;</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>fork 然后 发了一个pull request，Done。</p>
+</div>
+
+
+<div class="meta">
+	<div class="date">
+
+
+
+
+
+
+
+
+  
+
+
+<time datetime="2012-12-05T21:05:00+08:00" pubdate data-updated="true"></time></div>
+	<div class="tags">
+
+
+	<a class='category' href='/blog/categories/coffeescript/'>coffeescript</a>, <a class='category' href='/blog/categories/dev/'>dev</a>, <a class='category' href='/blog/categories/git/'>git</a>, <a class='category' href='/blog/categories/github/'>github</a>, <a class='category' href='/blog/categories/sublime/'>sublime</a>
+
+
+</div>
+	
+</div>
+</article>
+
+	<div class="share">
+	<div class="addthis_toolbox addthis_default_style ">
+		
+		
+		<a class="addthis_button_tweet"></a>
+		
+		
+		
+	</div>
+	
+</div>
+
+
+</div>
+	<footer id="footer" class="inner">Copyright &copy; 2014
+
+    vvtommy
+
+</footer>
+	<script src="/javascripts/slash.js"></script>
+<script src="/javascripts/jquery.fancybox.pack.js"></script>
+<script type="text/javascript">
+(function($){
+	$('.fancybox').fancybox();
+})(jQuery);
+</script> <!-- Delete or comment this line to disable Fancybox -->
+
+
+
+
+
+
+</body>
+</html>

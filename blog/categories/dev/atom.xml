@@ -1,0 +1,337 @@
+<?xml version="1.0" encoding="utf-8"?>
+<feed xmlns="http://www.w3.org/2005/Atom">
+
+  <title><![CDATA[Category: dev | /home/vvtommy]]></title>
+  <link href="http://vvtommy.com/blog/categories/dev/atom.xml" rel="self"/>
+  <link href="http://vvtommy.com/"/>
+  <updated>2014-12-17T16:06:24+08:00</updated>
+  <id>http://vvtommy.com/</id>
+  <author>
+    <name><![CDATA[vvtommy]]></name>
+    
+  </author>
+  <generator uri="http://octopress.org/">Octopress</generator>
+
+  
+  <entry>
+    <title type="html"><![CDATA[修正Sublime的CoffeeScript插件 0.5.3下的高亮Bug]]></title>
+    <link href="http://vvtommy.com/blog/2012/12/05/fix-sublime-syntax-bug-in-0-dot-5-3/"/>
+    <updated>2012-12-05T21:05:00+08:00</updated>
+    <id>http://vvtommy.com/blog/2012/12/05/fix-sublime-syntax-bug-in-0-dot-5-3</id>
+    <content type="html"><![CDATA[<p>今天Sublime Text2的CoffeeScript插件更新后，语法高亮不能正常工作。长时间没有动过vim的我已然残废，在用vim工作了2分钟后表示我已经废了。
+于是只好Google到CoffeeScript插件Github地址，查看issue。果然另一个老兄也报告了这样的bug，项目所有者Xavura回应说，之前合并一个Pull Request时没小心测试，说让等几天他会更新，在此之前找到那个有问题的commit，对着diff自己改回来。</p>
+
+<pre><code class="diff">@@ -261,7 +261,7 @@
+         &lt;/dict&gt;
+       &lt;/dict&gt;
+       &lt;key&gt;match&lt;/key&gt;
+-      &lt;string&gt;([a-zA-Z\$_](\w|\$|\.)*\s*(?!\::)((:)|(=))(?!(\s*\(.*\))?\s*((=|-)&amp;gt;)))&lt;/string&gt;
++      &lt;string&gt;([a-zA-Z\$_](\w|\$|\.)*\s*(?!\::)((:)|(=[^=]))(?!(\s*\(.*\))?\s*((=|-)&amp;gt;)))&lt;/string&gt;
+       &lt;key&gt;name&lt;/key&gt;
+       &lt;string&gt;variable.assignment.coffee&lt;/string&gt;
+     &lt;/dict&gt;
+</code></pre>
+
+<p>看comment好像是为了解决这么一个问题:</p>
+
+<pre><code class="CoffeeScript">if ( derp == herp )
+</code></pre>
+
+<p>这时，derp=被语法分析器解释为赋值语句。结果这哥们完全没有看后面的零宽度负预测先行断言，自顾自的加了[^=]，这意味着只要等号后不是<code>=</code>, 那么照样被语法分析器解释为赋值语句… 1秒钟修复。</p>
+
+<pre><code>@@ -262,7 +262,7 @@
+                &lt;/dict&gt;
+            &lt;/dict&gt;
+            &lt;key&gt;match&lt;/key&gt;
+-           &lt;string&gt;([a-zA-Z\$_](\w|\$|\.)*\s*(?!\::)((:)|(=))(?!(\s*\(.*\))?\s*(=|(=|-)&amp;gt;)))&lt;/string&gt;
++           &lt;string&gt;([a-zA-Z\$_](\w|\$|\.)*\s*(?!\::)((:)|(=[^=]))(?!(\s*\(.*\))?\s*((=|-)&amp;gt;)))&lt;/string&gt;
+            &lt;key&gt;name&lt;/key&gt;
+            &lt;string&gt;variable.assignment.coffee&lt;/string&gt;
+        &lt;/dict&gt;
+</code></pre>
+
+<p>fork 然后 发了一个pull request，Done。</p>
+]]></content>
+  </entry>
+  
+  <entry>
+    <title type="html"><![CDATA[Linux下的source命令]]></title>
+    <link href="http://vvtommy.com/blog/2012/12/02/source-command/"/>
+    <updated>2012-12-02T15:50:00+08:00</updated>
+    <id>http://vvtommy.com/blog/2012/12/02/source-command</id>
+    <content type="html"><![CDATA[<p>用法</p>
+
+<pre><code>source FileName
+</code></pre>
+
+<p>在<strong>当前Shell</strong>下执行文件,通常使用 <code>.</code> 代替。例如:<code>. ./process.sh</code></p>
+
+<p><code>source</code>在当前shell环境下执行命令，而直接执行是脚本启动一个子shell来执行命令。这样如果把设置环境变量（或alias等等）的命令写进脚本中，就只会影响子shell,无法改变当前的<code>shell</code>,所以通过文件（命令列）设置环境变量时，要用<code>source</code>命令。</p>
+]]></content>
+  </entry>
+  
+  <entry>
+    <title type="html"><![CDATA[在Ubuntu上部署openvpn服务以及其管理系统]]></title>
+    <link href="http://vvtommy.com/blog/2012/12/01/deploy-openvpn-and-manage-system-on-ubuntu/"/>
+    <updated>2012-12-01T17:58:00+08:00</updated>
+    <id>http://vvtommy.com/blog/2012/12/01/deploy-openvpn-and-manage-system-on-ubuntu</id>
+    <content type="html"><![CDATA[<p>首先描述一下我的需求:</p>
+
+<ul>
+<li>使用MySQL进行用户管理</li>
+<li>可以实现流量监测</li>
+<li>使用用户名及密码进行登陆</li>
+<li>由于要分发给朋友，所以希望有设置账号密码的功能</li>
+</ul>
+
+
+<h3>安装OpenVPN</h3>
+
+<p>安装相关软件</p>
+
+<pre><code>apt-get update
+apt-get install openvpn udev mysql-server libpam-mysql
+</code></pre>
+
+<p>OK，这样已经安装了所需的所有软件,现在开始进行配置。</p>
+
+<p>将<code>easy_rsa</code>密钥工具包拷贝到配置目录备用</p>
+
+<pre><code>cp -R /usr/share/doc/openvpn/examples/easy-rsa/ /etc/openvpn
+</code></pre>
+
+<p>修改<code>/etc/openvpn/easy_rsa/var</code>文件，将默认配置修改为你所需要的值</p>
+
+<pre><code>export KEY_COUNTRY="CN"
+export KEY_PROVINCE="SH"
+export KEY_CITY="SH"
+export KEY_ORG="lalala"
+export KEY_EMAIL="vvtommy@gmail.com"
+</code></pre>
+
+<h3>配置你的密钥</h3>
+
+<p>首先初始化<a href="http://zh.wikipedia.org/wiki/PKI" title="公开金钥基础架构">PKI</a></p>
+
+<pre><code>cd /etc/openvpn/easy-rsa/2.0/
+source . /etc/openvpn/easy-rsa/2.0/vars
+. /etc/openvpn/easy-rsa/2.0/clean-all
+. /etc/openvpn/easy-rsa/2.0/build-ca
+
+cd /etc/openvpn/easy-rsa/2.0/
+source . /etc/openvpn/easy-rsa/2.0/vars
+. /etc/openvpn/easy-rsa/2.0/clean-all
+. /etc/openvpn/easy-rsa/2.0/build-ca
+</code></pre>
+
+<p>接着生成服务器私钥。会有一些问题和提示，选择默认和Y就可以了。</p>
+
+<pre><code>. /etc/openvpn/easy-rsa/2.0/build-key-server server
+</code></pre>
+
+<p>最后生成Diffie Hellman Parameters。</p>
+
+<pre><code>. /etc/openvpn/easy-rsa/2.0/build-dh
+Generating DH parameters, 1024 bit long safe prime, generator 2
+This is going to take a long time
+</code></pre>
+
+<p>如果一切正常，会出现如上所示的信息。
+密钥的配置基本就是这样，最后把生成的密钥文件和easy-rsa提供的服务器端配置文件样本拷贝到配置文件夹下。</p>
+
+<pre><code>cd /etc/openvpn/easy-rsa/2.0/keys
+cp ca.crt ca.key dh1024.pem server.crt server.key /etc/openvpn
+cd /usr/share/doc/openvpn/examples/sample-config-files
+gunzip -d server.conf.gz
+cp server.conf /etc/openvpn/
+cp client.conf ~/
+cd ~/
+</code></pre>
+
+<p>配置OpenVPN链接
+密钥的配置保证了客户端和VPN服务器的链接。还要配置OpenVPN对网络包地转发规则。
+修改<code>/etc/openvpn/server.conf</code>,添加如下语句</p>
+
+<pre><code>push "redirect-gateway def1"
+</code></pre>
+
+<p>修改<code>/etc/sysctl.conf</code>,添加如下语句</p>
+
+<pre><code>net.ipv4.ip_forward=1
+</code></pre>
+
+<p>为VPN会话添加下列变量。</p>
+
+<pre><code>echo 1 &gt; /proc/sys/net/ipv4/ip_forward
+iptables -A FORWARD -m state --state RELATED,ESTABLISHED -j ACCEPT
+iptables -A FORWARD -s 10.8.0.0/24 -j ACCEPT
+iptables -A FORWARD -j REJECT
+iptables -t nat -A POSTROUTING -s 10.8.0.0/24 -o eth0 -j MASQUERADE
+</code></pre>
+
+<p>为了保证每次启动这边规则都生效，可以把后面四个语句添加到<code>/etc/rc.local</code>中去。
+除了IP包地转发规则，我们还需要处理来自客户端的dns请求，安装dnsmasq来解决这个问题。</p>
+
+<pre><code>apt-get update
+apt-get install dnsmasq
+</code></pre>
+
+<p>修改<code>/etc/openvpn/server.conf</code>,添加如下语句</p>
+
+<pre><code>push "dhcp-option DNS 10.8.0.1"
+push "dhcp-option DNS 8.8.8.8"
+push "dhcp-option DNS 8.8.4.4"
+</code></pre>
+
+<p>OK，一切搞定，启动OpenVPN服务吧。</p>
+
+<pre><code>/etc/init.d/openvpn restart
+</code></pre>
+
+<h3>使用MySQL进行用户认证以及流量管理</h3>
+
+<p>登录MySQL</p>
+
+<pre><code>mysql -uroot -p
+</code></pre>
+
+<p>为pam_mysql初始化数据库。</p>
+
+<p><div><script src='https://gist.github.com/4187735.js'></script>
+<noscript><pre><code>-- 创建数据库
+CREATE DATABASE openvpn;
+ 
+-- 切换数据库
+USE openvpn;
+ 
+-- 创建用户，用户名openvpn，密码openvpn（可自行设定）
+GRANT ALL ON openvpn.* TO &#39;openvpn&#39;@&#39;localhost&#39; IDENTIFIED BY &#39;openvpn&#39;;
+ 
+-- 创建用户数据表
+CREATE TABLE IF NOT EXISTS `user` (
+  `username` char(32) COLLATE utf8_unicode_ci NOT NULL,
+  `password` char(128) COLLATE utf8_unicode_ci DEFAULT NULL,
+  `active` int(10) NOT NULL DEFAULT &#39;1&#39;,
+  `creation` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  `name` varchar(32) COLLATE utf8_unicode_ci NOT NULL,
+  `email` char(128) COLLATE utf8_unicode_ci DEFAULT NULL,
+  `note` text COLLATE utf8_unicode_ci,
+  `quota_cycle` int(10) NOT NULL DEFAULT &#39;30&#39;,
+  `quota_bytes` bigint(20) NOT NULL DEFAULT &#39;10737418240&#39;,
+  `enabled` int(10) NOT NULL DEFAULT &#39;1&#39;,
+  PRIMARY KEY (`username`),
+  KEY `idx_active` (`active`),
+  KEY `idx_enabled` (`enabled`)
+) DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
+ 
+-- 创建日志数据表
+CREATE TABLE IF NOT EXISTS `log` (
+  `username` varchar(32) COLLATE utf8_unicode_ci NOT NULL,
+  `start_time` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  `end_time` timestamp NOT NULL DEFAULT &#39;0000-00-00 00:00:00&#39;,
+  `trusted_ip` varchar(64) COLLATE utf8_unicode_ci DEFAULT NULL,
+  `trusted_port` int(10) DEFAULT NULL,
+  `protocol` varchar(16) COLLATE utf8_unicode_ci DEFAULT NULL,
+  `remote_ip` varchar(64) COLLATE utf8_unicode_ci DEFAULT NULL,
+  `remote_netmask` varchar(64) COLLATE utf8_unicode_ci DEFAULT NULL,
+  `bytes_received` bigint(20) DEFAULT &#39;0&#39;,
+  `bytes_sent` bigint(20) DEFAULT &#39;0&#39;,
+  `status` int(10) NOT NULL DEFAULT &#39;1&#39;,
+  KEY `idx_username` (`username`),
+  KEY `idx_start_time` (`start_time`),
+  KEY `idx_end_time` (`end_time`)
+) DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;</code></pre></noscript></div>
+</p>
+
+<p>编辑 <code>/etc/pam.d/openvpn</code> 为pam_mysql配置数据库</p>
+
+<pre><code>auth            sufficient      pam_mysql.so \
+user=openvpn passwd=openvpn host=localhost db=openvpn \
+table=user usercolumn=username passwdcolumn=password \
+where=active=1 sqllog=0 crypt=1
+
+account         required        pam_mysql.so \
+user=openvpn passwd=openvpn host=localhost db=openvpn \
+table=user usercolumn=username passwdcolumn=password \
+where=active=1 sqllog=0 crypt=1
+</code></pre>
+
+<p>其中数据库、用户名、密码按照自己的实际情况设置。其中<code>crypt</code>表示密码在数据库中加密存储的方式:</p>
+
+<ul>
+<li>0 (or “plain”)：不加密，明文存储。不推荐使用。</li>
+<li>1 (or “Y”)：使用crypt(3)函数，相当于MySQL中的ENCRYPT()函数。</li>
+<li>2 (or “mysql”)：使用MySQL的PASSWORD()函数。PAM可能与MySQL的函数不同，不推荐使用。</li>
+<li>3 (or “md5″)：使用MD5。</li>
+<li>4 (or “sha1″)：使用SHA1。</li>
+</ul>
+
+
+<p>重启saslauthd</p>
+
+<pre><code>/etc/init.d/saslauthd restart
+</code></pre>
+
+<p>如果出现以下提示：</p>
+
+<pre><code>To enable saslauthd, edit /etc/default/saslauthd and set START=yes (warning).
+</code></pre>
+
+<p>说明saslauthd未配置成自动启动，则需修改<code>/etc/default/saslauthd</code>文件，将<code>START=no</code>改为<code>START=yes</code>，再重启服务即可。</p>
+
+<p>这样，就可以在<code>openvpn</code>表中对用户进行管理了，例如添加用户:</p>
+
+<pre><code>USE openvpn;
+INSERT INTO user (username,password) VALUES ('test',ENCRYPT('123456'));
+</code></pre>
+
+<p>退出后，可以运行以下命令：</p>
+
+<pre><code>testsaslauthd -u test -p 123456 -s openvpn
+</code></pre>
+
+<p>如果显示</p>
+
+<pre><code>0: OK "Success."
+</code></pre>
+
+<p>则说明配置成功。否则，请根据 <code>/var/log/auth.log</code> 日志查找原因。</p>
+
+<p>复制OpenVPN PAM认证模块</p>
+
+<pre><code>cp /usr/lib/openvpn/openvpn-auth-pam.so /etc/openvpn/
+</code></pre>
+
+<p>编辑 <code>/etc/openvpn/server.conf</code> 添加以下配置以配置pam</p>
+
+<pre><code>plugin ./openvpn-auth-pam.so openvpn
+client-cert-not-required
+username-as-common-name
+</code></pre>
+
+<p>为了防止世界被破坏，我们在 <code>/etc/openvpn/server.conf</code> 中添加如下配置</p>
+
+<pre><code>cipher AES-256-CBC
+</code></pre>
+
+<p>重启 OpenVPN</p>
+
+<pre><code>/etc/init.d/openvpn restart
+</code></pre>
+
+<p>OK, 现在已经建立起一套基于MySQL认证的OpenVPN系统</p>
+
+<h3>流量控制</h3>
+
+<blockquote><p>未完待续</p></blockquote>
+
+<ol>
+<li><a href="http://library.linode.com/networking/openvpn/ubuntu-10.04-lucid" title="Secure Communications with OpenVPN on Ubuntu 10.04 (Lucid)">Secure Communications with OpenVPN on Ubuntu 10.04 (Lucid)</a></li>
+<li><a href="http://code.google.com/p/tunnelblick/" title="Tunnelblick">Tunnelblick</a></li>
+<li><a href="http://openvpn.se/download.html" title="OpenVPN GUI for Windows">OpenVPN GUI for Windows</a></li>
+</ol>
+
+]]></content>
+  </entry>
+  
+</feed>
