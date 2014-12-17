@@ -1,8 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?>
 <feed xmlns="http://www.w3.org/2005/Atom">
 
-  <title><![CDATA[Category: git | /home/vvtommy]]></title>
-  <link href="http://vvtommy.com/blog/categories/git/atom.xml" rel="self"/>
+  <title><![CDATA[Category: windows | /home/vvtommy]]></title>
+  <link href="http://vvtommy.com/blog/categories/windows/atom.xml" rel="self"/>
   <link href="http://vvtommy.com/"/>
   <updated>2014-12-17T17:29:42+08:00</updated>
   <id>http://vvtommy.com/</id>
@@ -58,47 +58,6 @@
 <p>截图:<br/>
 <img src="https://raw.githubusercontent.com/babun/babun.github.io/master/images/screen_vim.png" alt="babun 1" />
 <img src="https://raw.githubusercontent.com/babun/babun.github.io/master/images/screen_vim.png" alt="babun 2" /></p>
-]]></content>
-  </entry>
-  
-  <entry>
-    <title type="html"><![CDATA[修正Sublime的CoffeeScript插件 0.5.3下的高亮Bug]]></title>
-    <link href="http://vvtommy.com/blog/2012/12/05/fix-sublime-syntax-bug-in-0-dot-5-3/"/>
-    <updated>2012-12-05T21:05:00+08:00</updated>
-    <id>http://vvtommy.com/blog/2012/12/05/fix-sublime-syntax-bug-in-0-dot-5-3</id>
-    <content type="html"><![CDATA[<p>今天Sublime Text2的CoffeeScript插件更新后，语法高亮不能正常工作。长时间没有动过vim的我已然残废，在用vim工作了2分钟后表示我已经废了。
-于是只好Google到CoffeeScript插件Github地址，查看issue。果然另一个老兄也报告了这样的bug，项目所有者Xavura回应说，之前合并一个Pull Request时没小心测试，说让等几天他会更新，在此之前找到那个有问题的commit，对着diff自己改回来。</p>
-
-<pre><code class="diff">@@ -261,7 +261,7 @@
-         &lt;/dict&gt;
-       &lt;/dict&gt;
-       &lt;key&gt;match&lt;/key&gt;
--      &lt;string&gt;([a-zA-Z\$_](\w|\$|\.)*\s*(?!\::)((:)|(=))(?!(\s*\(.*\))?\s*((=|-)&amp;gt;)))&lt;/string&gt;
-+      &lt;string&gt;([a-zA-Z\$_](\w|\$|\.)*\s*(?!\::)((:)|(=[^=]))(?!(\s*\(.*\))?\s*((=|-)&amp;gt;)))&lt;/string&gt;
-       &lt;key&gt;name&lt;/key&gt;
-       &lt;string&gt;variable.assignment.coffee&lt;/string&gt;
-     &lt;/dict&gt;
-</code></pre>
-
-<p>看comment好像是为了解决这么一个问题:</p>
-
-<pre><code class="CoffeeScript">if ( derp == herp )
-</code></pre>
-
-<p>这时，derp=被语法分析器解释为赋值语句。结果这哥们完全没有看后面的零宽度负预测先行断言，自顾自的加了[^=]，这意味着只要等号后不是<code>=</code>, 那么照样被语法分析器解释为赋值语句… 1秒钟修复。</p>
-
-<pre><code>@@ -262,7 +262,7 @@
-                &lt;/dict&gt;
-            &lt;/dict&gt;
-            &lt;key&gt;match&lt;/key&gt;
--           &lt;string&gt;([a-zA-Z\$_](\w|\$|\.)*\s*(?!\::)((:)|(=))(?!(\s*\(.*\))?\s*(=|(=|-)&amp;gt;)))&lt;/string&gt;
-+           &lt;string&gt;([a-zA-Z\$_](\w|\$|\.)*\s*(?!\::)((:)|(=[^=]))(?!(\s*\(.*\))?\s*((=|-)&amp;gt;)))&lt;/string&gt;
-            &lt;key&gt;name&lt;/key&gt;
-            &lt;string&gt;variable.assignment.coffee&lt;/string&gt;
-        &lt;/dict&gt;
-</code></pre>
-
-<p>fork 然后 发了一个pull request，Done。</p>
 ]]></content>
   </entry>
   

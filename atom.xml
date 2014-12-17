@@ -4,7 +4,7 @@
   <title><![CDATA[/home/vvtommy]]></title>
   <link href="http://vvtommy.com/atom.xml" rel="self"/>
   <link href="http://vvtommy.com/"/>
-  <updated>2014-12-17T16:06:24+08:00</updated>
+  <updated>2014-12-17T17:29:42+08:00</updated>
   <id>http://vvtommy.com/</id>
   <author>
     <name><![CDATA[vvtommy]]></name>
@@ -12,6 +12,54 @@
   </author>
   <generator uri="http://octopress.org/">Octopress</generator>
 
+  
+  <entry>
+    <title type="html"><![CDATA[如何在 Windows 上使用 git]]></title>
+    <link href="http://vvtommy.com/blog/2014/12/17/ru-he-zai-windows-shang-shi-yong-git/"/>
+    <updated>2014-12-17T17:24:15+08:00</updated>
+    <id>http://vvtommy.com/blog/2014/12/17/ru-he-zai-windows-shang-shi-yong-git</id>
+    <content type="html"><![CDATA[<p>由于 <a href="http://git-scm.com">git</a> 严重依赖 <a href="http://zh.wikipedia.org/wiki/%E6%AE%BC%E5%B1%A4">shell</a>, 而 Windows 下并没有功能完整的 <a href="http://zh.wikipedia.org/wiki/Unix_shell">*nix shell</a>，所以目前 Windows 下安装 <a href="http://git-scm.com">git</a> 都采用整合 <a href="http://zh.wikipedia.org/wiki/%E6%AE%BC%E5%B1%A4">shell</a> 的安装包的形式提供。</p>
+
+<h2>msysgit</h2>
+
+<p>Windows 下比较常用的 <a href="http://git-scm.com">git</a> 整合安装包为<a href="http://msysgit.github.io">msysgit</a>. 它整合了 <a href="Minimalist%20GNU%20for%20Windows">MinGW</a> 来提供 <a href="http://zh.wikipedia.org/wiki/%E6%AE%BC%E5%B1%A4">shell</a> 功能，所使用的 <a href="http://zh.wikipedia.org/wiki/%E6%AE%BC%E5%B1%A4">shell</a> 程序是 <a href="Bourne-Again%20shell%EF%BC%8C%E6%BA%90%E4%BA%8E%20[sh]%20%E7%9A%84%E5%90%8D%E7%A7%B0%20Bourne%20shell">bash</a>。并且提供 <a href="http://git-scm.com">git</a> 的图形化工具 git-gui 和 git 分支管理的图形化工具 gitk。</p>
+
+<p>它的优点是比较传统，网上很多资料中的截图都是使用的这款整合安装包。</p>
+
+<p>缺点现在看来比较多:</p>
+
+<ol>
+<li>由于使用了 Windows 自带的终端程序，导致对字符集支持不佳。</li>
+<li>除了 <a href="http://zh.wikipedia.org/wiki/Bash">bash</a> 之外没有其他 <a href="http://zh.wikipedia.org/wiki/%E6%AE%BC%E5%B1%A4">shell</a> 可供替换</li>
+<li>与其他平台使用体验差异较大</li>
+<li><a href="http://msysgit.github.io">msysgit</a> 自身的 bug 和使用体验问题。它本身就与相对健全的 <a href="http://zh.wikipedia.org/zh/Cygwin">Cygwin</a> 有较大的差距</li>
+<li>设计目标是&#8221;在 windows 上使用 <a href="http://git-scm.com">git</a>&ldquo;，所以对于一款用与开发的 <a href="http://zh.wikipedia.org/wiki/%E6%AE%BC%E5%B1%A4">shell</a> 而言，功能比较单薄。</li>
+<li>丑</li>
+</ol>
+
+
+<p>截图:<br/>
+<img src="http://msysgit.github.io/img/gw1.png" alt="msysgit bash" /></p>
+
+<h2>babun</h2>
+
+<p>目前在 Windows 下推荐的整合工具是 <a href="https://github.com/babun/babun">babun</a>。这款工具不同于<a href="http://msysgit.github.io">msysgit</a>，它并不是只针对&#8221;在 windows 上使用 <a href="http://git-scm.com">git</a>&ldquo;而开发的，其目的是为了在 Windows 下提供一款功能齐备的终端工具，安装简单（相对于完全安装 <a href="http://zh.wikipedia.org/zh/Cygwin">Cygwin</a>），提供 Mac、Linux下相同的体验，而这正是我们所需要的。它自带一个裁剪过的 <a href="http://zh.wikipedia.org/zh/Cygwin">Cygwin</a>，并且使用 <a href="http://zh.wikipedia.org/wiki/Z_shell">zsh</a> 作为默认的 <a href="http://zh.wikipedia.org/wiki/%E6%AE%BC%E5%B1%A4">shell</a> 解释器。 并且具有包管理工具，可以随时安装新的工具。其他功能请参阅 <a href="https://github.com/babun/babun">https://github.com/babun/babun</a> 。</p>
+
+<p>它具备如下功能:
+- 按需剪裁的 <a href="http://zh.wikipedia.org/zh/Cygwin">Cygwin</a>
+- 一键安装工具，并且安装时不需要 Administrator 权限
+- <code>pact</code> 包管理工具，方便的安装、管理各种应用程序、库
+- 支持插件
+- 支持 <a href="http://git-scm.com">git</a>
+- 预装 <a href="https://github.com/robbyrussell/oh-my-zsh">oh-my-zsh</a> 组件，其本身提供了难以置信的操作体验
+- HTTP(s) 代理
+- 自动更新</p>
+
+<p>截图:<br/>
+<img src="https://raw.githubusercontent.com/babun/babun.github.io/master/images/screen_vim.png" alt="babun 1" />
+<img src="https://raw.githubusercontent.com/babun/babun.github.io/master/images/screen_vim.png" alt="babun 2" /></p>
+]]></content>
+  </entry>
   
   <entry>
     <title type="html"><![CDATA[修正Sublime的CoffeeScript插件 0.5.3下的高亮Bug]]></title>
